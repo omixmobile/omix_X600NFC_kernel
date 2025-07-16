@@ -1,0 +1,94 @@
+/**
+ Chipone fpsensor GPIO define. begin.
+**/
+
+#define __ICNFPSENSOR_EINT_EN_PIN_NUM__    4
+
+&icnfpsensor {
+	interrupt-parent = <&pio>;
+	interrupts = <__ICNFPSENSOR_EINT_EN_PIN_NUM__ IRQ_TYPE_EDGE_RISING __ICNFPSENSOR_EINT_EN_PIN_NUM__ 0>;
+	debounce = <__ICNFPSENSOR_EINT_EN_PIN_NUM__ 0>;
+	status = "okay";
+};
+
+&pio {
+    finger_rst_mode_low: finger_rst_low {
+        pins_cmd_dat {
+	pinmux = <PINMUX_GPIO13__FUNC_GPIO13>;
+            slew-rate = <1>;
+            output-low;
+        };
+    };
+    finger_rst_mode_high: finger_rst_high {
+        pins_cmd_dat {
+	pinmux = <PINMUX_GPIO13__FUNC_GPIO13>;
+            slew-rate = <1>;
+            output-high;
+        };
+    };
+	finger_eint_as_int: finger_eint {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO4__FUNC_GPIO4>;
+			slew-rate = <0>;
+			bias-disable;
+			//bias-pull-low = <0>;
+		};
+	};
+	finger_eint_in_low: finger_eint_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO4__FUNC_GPIO4>;
+			slew-rate = <0>;
+			bias-pull-down = <0>;
+		};
+	};
+	finger_eint_in_float: finger_eint_float {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO4__FUNC_GPIO4>;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};	
+	
+};
+
+&icnfpsensor{	
+	pinctrl-names = "finger_rst_low","finger_rst_high",
+                    "finger_eint","finger_eint_low","finger_eint_float";
+	pinctrl-0 = <&finger_rst_mode_low>;
+	pinctrl-1 = <&finger_rst_mode_high>;
+	pinctrl-2 = <&finger_eint_as_int>;
+	pinctrl-3 = <&finger_eint_in_low>;
+	pinctrl-4 = <&finger_eint_in_float>;
+	status = "okay";
+};
+
+&spi0 {
+    #address-cells = <1>;
+    #size-cells = <0>;
+   	chipone_fpsensor{
+        compatible = "mediatek,chipone_fpsensor";    /*set spi->modalias*/
+        reg = <0>;    /*set spi->chip_select must*/
+        spi-max-frequency = <8000000>;    /*set spi->max_speed_hz must*/
+        /*other infromation*/
+        /*spi-cpha;*/    /*set cpha=1, optional*/
+        /*spi-cpol;*/    /*set cpol=1, optional*/
+        /*spi-cs-high;*/    /*set cs active level=1, optional*/
+        /*spi-3wire;*/    /*set no-tx or no-rx, optional*/
+        /*spi-lsb-first;*/    /*set lsb-first transfer, optional*/
+    };
+};
+
+/*chipone fpsensor fingerprint node for dts
+* For example:put following codes to 'mt6739.dts' for MT6739 platform. 
+*			        path:kernel-4.4\arch\arm\boot\dts	
+*/
+
+/*
+icnfpsensor:icnfpsensor@0 {
+	compatible = "mediatek,icnfpsensor";
+};
+*/
+
+/**
+ Chipone fpsensor GPIO define. end.
+**/

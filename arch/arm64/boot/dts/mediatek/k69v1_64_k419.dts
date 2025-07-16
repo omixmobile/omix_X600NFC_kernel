@@ -1,0 +1,450 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2019 MediaTek Inc.
+ */
+
+/dts-v1/;
+/plugin/;
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/pinctrl/mt6768-pinfunc.h>
+
+&reserved_memory {
+	reserve-memory-scp_share {
+		compatible = "mediatek,reserve-memory-scp_share";
+		no-map;
+		size = <0 0x00d00000>;
+		alignment = <0 0x1000000>;
+		alloc-ranges = <0 0x40000000 0 0x50000000>;
+	};
+};
+
+/* chosen */
+&chosen {
+
+	atag,videolfb-fb_base_l = <0x7e605000>;
+	atag,videolfb-fb_base_h = <0x0>;
+	atag,videolfb-islcmfound = <1>;
+	atag,videolfb-islcm_inited = <0>;
+	atag,videolfb-fps= <6000>;
+	atag,videolfb-vramSize= <0x017e8000>;
+	atag,videolfb-lcmname=
+		"nt36672c_fhdp_dsi_vdo_60hz_wo_dsc_shenchao_lcm_drv";
+};
+//Antai <AIUI_BSP_TP> <luobowen> <2021-01-11> add for 2002  start 
+
+//Antai <AIUI_BSP_TP> <luobowen> <2021-01-11> add for 2002  end 
+
+
+&odm {
+	led0:led@0 {
+		compatible = "mediatek,red";
+		led_mode = <0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+	led1:led@1 {
+		compatible = "mediatek,green";
+		led_mode = <0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+	led2:led@2 {
+		compatible = "mediatek,blue";
+		led_mode = <0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+	led3:led@3 {
+		compatible = "mediatek,jogball-backlight";
+		led_mode = <0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+	led4:led@4 {
+		compatible = "mediatek,keyboard-backlight";
+		led_mode = <0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+	led5:led@5 {
+		compatible = "mediatek,button-backlight";
+		led_mode = <0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+	led6:led@6 {
+		compatible = "mediatek,lcd-backlight";
+		led_mode = <5>;
+		data = <1>;
+//Antai <AI_BSP_LCM> <hehl> <2021-04-07> modify duty start        
+		pwm_config = <0 1 0 0 0>;
+//Antai <AI_BSP_LCM> <hehl> <2021-04-07> modify duty end        
+	};
+	vibrator0:vibrator@0 {
+		compatible = "mediatek,vibrator";
+		vib_timer = <25>;
+		vib_limit = <9>;
+		vib_vol= <9>;
+	};
+};
+
+&i2c2 {
+	clock-frequency = <400000>;
+
+	mtk-usb@60 {
+		compatible = "mediatek,mtk-usb";
+		reg = <0x60>;
+		status = "okay";
+	};
+};
+&i2c3 {
+	clock-frequency = <400000>;
+	//Antaiui <AI_BSP_CHG> <hehl> <2022-03-28> modify for ASW2002 start
+	hl7019d@6b {
+		compatible = "mediatek,hl7019d";
+		reg = <0x6b>;
+		status = "okay";
+	};
+	//Antaiui <AI_BSP_CHG> <hehl> <2022-03-28> modify for ASW2002 end
+	// Antaiui <AI_BSP_CAM> <xieht> <2022-04-11> 2002 flashlight porting begin
+	aw36428@63 {
+		compatible = "awinic,aw36428";
+		reg = <0x63>;
+		status = "okay";
+	};
+	// Antaiui <AI_BSP_CAM> <xieht> <2022-04-11> 2002 flashlight porting end
+};
+
+// Antaiui <AI_BSP_CAM> <xieht> <2022-04-11> 2002 flashlight porting begin
+/* flashlight start */
+&pio {
+	flashlight_pins_default: flashlightdefault {
+
+	};
+
+	flashlight_pins_aw_0: flashen@0 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO153__FUNC_GPIO153>;
+			slew-rate = <1>; /*direction 0:in, 1:out*/
+			output-low;/*direction out used only. output_low or high*/
+		};
+	};
+
+	flashlight_pins_aw_1: flashen@1 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO153__FUNC_GPIO153>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+};
+
+&aw36428 {
+	pinctrl-names = "default", "aw_enable", "aw_disable";
+	pinctrl-0 = <&flashlight_pins_default>;
+	pinctrl-1 = <&flashlight_pins_aw_0>;
+	pinctrl-2 = <&flashlight_pins_aw_1>;
+	status = "okay";
+};
+/* flashlight end */
+// Antaiui <AI_BSP_CAM> <xieht> <2022-04-11> 2002 flashlight porting end
+
+//Antai <AI_BSP_AUDIO> <luobowen> <2021-01-12> add for ASW2001Q begin
+&i2c6 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	clock-frequency = <400000>;
+	mediatek,use-push-pull;
+
+	aw87xxx_pa@58 {
+		compatible = "awinic,aw87xxx_pa";
+		reg = <0x58>;
+		reset-gpio = <&pio 160 0>;
+		monitor-flag = <1>;
+		driver-num = < 0 >;
+		monitor-timer-val = <3000>;
+		monitor-timer-count-max = <5>;
+		dev_index = <0>;
+		status = "okay";
+	};
+
+};
+//Antaiui <AI_BSP_AUDIO> <luobowen> <2021-01-12> add for audio end
+/* accdet start */
+&accdet {
+	/* accdet micbias voltage: 0x07,2.7v;0x05,2.5v;0x02,1.9v */
+	accdet-mic-vol = <6>;
+	headset-mode-setting = <0x500 0x500 1 0x1f0 0x800 0x800 0x20 0x44>;
+	accdet-plugout-debounce = <1>;
+	/*1:ACC mode, 2:low cost without in bias, 6:low cost with in bias*/
+	accdet-mic-mode = <1>;
+	/* eint_level_trigger: 8,LEVEL_LOW(DEF) ;4,LV_HIGH;others,LV_LOW */
+	headset-eint-level-pol = <8>;
+	/*0--MD_MAX--UP_MAX--DW_MAX*/
+	headset-three-key-threshold = <0 80 220 400>;
+	headset-three-key-threshold-CDD = <0 121 192 600>;
+	/*0--MD_MAX--VOICE_MAX--UP_MAX--DW_MAX*/
+	headset-four-key-threshold = <0 58 121 192 400>;
+	status = "okay";
+};
+/* accdet end */
+
+/* keypad start */
+&keypad {
+	pinctrl-names = "default";
+	pinctrl-0 = <&kpd_pins_default>;
+};
+
+&pio {
+	kpd_pins_default: kpdgpiodefault {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO93__FUNC_KPCOL0>;
+			bias-pull-up = <MTK_PUPD_SET_R1R0_10>;
+			input-enable;
+			input-schmitt-enable;
+		};
+	};
+};
+/* keypad end */
+
+&mt6370_pmu {
+	mt6370,intr_gpio_num = <20>; /* direct defined GPIO num */
+	mt6370,intr_gpio = <&pio 20 0x0>;
+};
+&mt6370_typec {
+	mt6370pd,intr_gpio_num = <41>; /* direct defined GPIO num */
+	mt6370pd,intr_gpio = <&pio 41 0x0>;
+};
+
+/* CONSYS GPIO standardization */
+&pio {
+	consys_pins_default: consys_default {
+	};
+	gpslna_pins_init: gpslna@0 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO94__FUNC_GPIO94>;
+			slew-rate = <0>;
+			bias-disable;
+			output-low;
+		};
+	};
+	gpslna_pins_oh: gpslna@1 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO94__FUNC_GPIO94>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+	gpslna_pins_ol: gpslna@2 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO94__FUNC_GPIO94>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+};
+&consys {
+	pinctrl-names = "default", "gps_lna_state_init",
+		"gps_lna_state_oh", "gps_lna_state_ol";
+	pinctrl-0 = <&consys_pins_default>;
+	pinctrl-1 = <&gpslna_pins_init>;
+	pinctrl-2 = <&gpslna_pins_oh>;
+	pinctrl-3 = <&gpslna_pins_ol>;
+	status = "okay";
+};
+/* CONSYS end */
+
+/* IRTX GPIO Start */
+&irtx_pwm {
+	pinctrl-names = "irtx_gpio_led_default", "irtx_gpio_led_set";
+	pinctrl-0 = <&irtx_gpio_led_default>;
+	pinctrl-1 = <&irtx_gpio_led_set>;
+	status = "okay";
+};
+&pio {
+	/* IRTX GPIO Settings -Start */
+	/* default: GPIO0, output, high */
+	irtx_gpio_led_default:irtx_gpio_led_def@gpio12 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO12__FUNC_GPIO12>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+			input-schmitt-enable = <0>;
+		};
+	};
+
+	irtx_gpio_led_set:irtx_gpio_led_set@gpio12 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO12__FUNC_PWM0>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+}; /* IRTX GPIO Settings -End */
+
+//Antai <AIUI_BSP_LCD> <luobowen> <2021-01-11> add for 2002 start 
+/* DISPSYS GPIO standardization */
+&pio {
+	mtkfb_pins_lcd_bias_enp1: lcd_bias_enp1_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO169__FUNC_GPIO169>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
+	mtkfb_pins_lcd_bias_enp0: lcd_bias_enp0_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO169__FUNC_GPIO169>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+
+	mtkfb_pins_lcd_bias_enn1: lcd_bias_enn1_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO165__FUNC_GPIO165>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
+	mtkfb_pins_lcd_bias_enn0: lcd_bias_enn0_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO165__FUNC_GPIO165>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+
+	mtkfb_pins_lcm_rst_out1_gpio: lcm_rst_out1_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO45__FUNC_GPIO45>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
+	mtkfb_pins_lcm_rst_out0_gpio: lcm_rst_out0_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO45__FUNC_GPIO45>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+
+	mtkfb_pins_lcm_dsi_te: lcm_dsi_te {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO44__FUNC_DSI_TE>;
+		};
+	};
+//Antai <AI_BSP_LCD> <yaoyc> <2021-05-11> modify fory mt6382 driver porting begin
+	mtkfb_pins_6382_rst_out1_gpio: 6382_rst_out1_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO24__FUNC_GPIO24>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
+	mtkfb_pins_6382_rst_out0_gpio: 6382_rst_out0_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO24__FUNC_GPIO24>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+};
+//Antai <AI_BSP_LCD> <yaoyc> <2021-05-11> modify fory mt6382 driver porting end
+&mtkfb {
+	pinctrl-names = "lcd_bias_enp1_gpio", "lcd_bias_enp0_gpio",
+		"lcd_bias_enn1_gpio", "lcd_bias_enn0_gpio",
+		"lcm_rst_out1_gpio", "lcm_rst_out0_gpio",
+		"mode_te_te", "6382_rst_out1_gpio", "6382_rst_out0_gpio";
+	pinctrl-0 = <&mtkfb_pins_lcd_bias_enp1>;
+	pinctrl-1 = <&mtkfb_pins_lcd_bias_enp0>;
+	pinctrl-2 = <&mtkfb_pins_lcd_bias_enn1>;
+	pinctrl-3 = <&mtkfb_pins_lcd_bias_enn0>;
+	pinctrl-4 = <&mtkfb_pins_lcm_rst_out1_gpio>;
+	pinctrl-5 = <&mtkfb_pins_lcm_rst_out0_gpio>;
+	pinctrl-6 = <&mtkfb_pins_lcm_dsi_te>;
+	pinctrl-7 = <&mtkfb_pins_6382_rst_out1_gpio>;
+	pinctrl-8 = <&mtkfb_pins_6382_rst_out0_gpio>;
+	status = "okay";
+};
+//Antai <AI_BSP_LCD> <yaoyc> <2021-05-11> modify fory mt6382 driver porting begin
+&spi2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	spislv@2 {
+		compatible = "mediatek,hifi4dsp-spi";
+		spi-max-frequency = <1000000>;
+		spi-pin-mode = <0>;
+		/*tick-dly = <1>;*/
+		ick-dly = <0>;
+		reg = <0>;
+		status = "okay";
+	};
+};
+&spi2 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&spislv_pins_default>;
+
+	spislv@2 {
+		compatible = "mediatek,spi_slave";
+		reg = <0>;
+		spi-max-frequency = <55000000>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+		low-speed-tick-delay = /bits/ 8 <1>;
+		low-speed-early-trans = /bits/ 8 <0>;
+		high-speed-tick-delay = /bits/ 8 <1>;
+		high-speed-early-trans = /bits/ 8 <1>;
+		slave-drive-strength = /bits/ 8 <3>;
+	};
+};
+
+&pio {
+	spislv_pins_default: spislv_mode_default {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO28__FUNC_SPI2_MI>,
+				<PINMUX_GPIO25__FUNC_SPI2_CSB>,
+				<PINMUX_GPIO26__FUNC_SPI2_MO>,
+				<PINMUX_GPIO27__FUNC_SPI2_CLK>;
+			drive-strength = <3>;
+		};
+	};
+};
+//Antai <AI_BSP_LCD> <yaoyc> <2021-05-11> modify fory mt6382 driver porting end
+//Antai <AIUI_BSP_LCD> <luobowen> <2021-01-11> add for 2002 end
+
+//Antai <AI_BSP_NFC> <yaoyc> <2022-01-07> add for 2100S NFC begin
+&i2c3 {
+	nxp_nfc@28{
+	compatible = "nxp,pn544";
+	reg = <0x28>;
+	nxp,pn544-irq = <&pio 9 0>;
+	nxp,pn544-ven = <&pio 20 0>;
+	nxp,pn544-fw-dwnld = <&pio 19 0>;
+	/*nxp,pn544-ese-pwr = <&pio 17 0>;*/
+	status = "okay";
+	};
+};
+//Antai <AI_BSP_NFC> <yaoyc> <2022-01-07> add for 2100S NFC end
+/* DISPSYS GPIO standardization end*/
+
+#include <k69v1_64_k419/cust.dtsi>
+#include "mediatek/cust_mt6768_camera_2002.dtsi"
+//Antaiui <AI_BSP_TP> <hehl> <2022-03-24> add tp begin
+//#include "mediatek/cust_mt6768_touch_1080x2160.dtsi"
+#include "mediatek/novatek-nt36xxx-i2c.dtsi"
+//Antaiui <AI_BSP_TP> <hehl> <2022-03-24> add tp end
+//Antai <AI_BSP_FINGERPRINT> <luobowen> <2021-01-12> add for 2002  start
+#include "mediatek/mt6768_fpsensor_spi0.dtsi"
+//Antai <AI_BSP_FINGERPRINT> <luobowen> <2021-01-12> add for 2002 end
+/*End of this file, DO NOT ADD ANYTHING HERE*/
